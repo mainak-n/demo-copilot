@@ -143,37 +143,3 @@ body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--t
 .input-row input { border: none; outline: none; flex: 1; }
 .input-row button { border: none; background: none; color: var(--primary-blue); cursor: pointer; }
 .page-sheet { background: white; width: 600px; min-height: 700px; padding: 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); color: #333; font-family: 'Calibri', sans-serif; }
-
-/* ADD THESE SPECIFIC CARD STYLES */
-.card-label { 
-    font-size: 11px; 
-    color: #666; 
-    font-weight: 700; 
-    margin-top: 10px; 
-    margin-bottom: 4px; 
-    display: block; 
-    text-transform: uppercase; 
-}
-.card-input { 
-    width: 100%; 
-    padding: 8px; 
-    border: 1px solid #ccc; 
-    border-radius: 4px; 
-    font-size: 13px; 
-    box-sizing: border-box; 
-    font-family: inherit; 
-    margin-bottom: 5px; 
-}
-.card-textarea { 
-    width: 100%; 
-    padding: 8px; 
-    border: 1px solid #ccc; 
-    border-radius: 4px; 
-    font-size: 13px; 
-    box-sizing: border-box; 
-    font-family: inherit; 
-    min-height: 60px; 
-    resize: vertical; 
-    margin-bottom: 10px; 
-}
-
