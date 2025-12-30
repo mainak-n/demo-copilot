@@ -1,13 +1,19 @@
-// --- STATE MANAGEMENT ---
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+// --- CONFIGURATION ---
+const API_KEY = "AIzaSyDiFAdpUCz3agJBTHHf9QFAUTH4F3guAzU"; 
+const genAI = new GoogleGenerativeAI(API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+// --- STATE & DOM ---
 const input = document.getElementById("msgInput");
 const chat = document.getElementById("chat");
 const sendBtn = document.getElementById("sendBtn");
 
-// State flags
 let isFirstMessage = true;
 let isLoopFinished = false;
 
-// Data Store (The "Context")
+// Default Data
 let clientData = {
     name: "John Doe",
     email: "john.doe@client.com",
@@ -18,11 +24,10 @@ let clientData = {
 
 // --- EVENT LISTENERS ---
 input.addEventListener("keyup", (e) => { if (e.key === "Enter") handleUserMessage(); });
-// Fix: Ensure button click works
-if(sendBtn) sendBtn.addEventListener("click", handleUserMessage); 
+sendBtn.addEventListener("click", handleUserMessage);
 document.getElementById("closeModalBtn").addEventListener("click", closeModal);
 
-// --- EXPOSE FUNCTIONS (For HTML Buttons) ---
+// --- EXPOSE FUNCTIONS ---
 window.useSuggestion = (text) => { input.value = text; handleUserMessage(); };
 window.startProposalFlow = () => { triggerDiscountAsk(); }; 
 window.handleDiscountSelection = (id, discount) => { 
@@ -43,15 +48,14 @@ async function handleUserMessage() {
     addMessage(text, "user");
     input.value = ""; 
 
-    // 1. LOOP RESET LOGIC
-    // If the previous loop finished, OR if it's the very first message
+    // 1. WELCOME LOOP RESET
+    // If the loop finished OR it's the very first message, show welcome and stop.
     if (isLoopFinished || isFirstMessage) {
         resetLoop();
         setTimeout(() => renderWelcomeMessage(), 600);
-        return; // Stop here. Force the user to see the menu.
+        return; 
     }
 
-    // 2. NORMAL FLOW COMMANDS
     const lower = text.toLowerCase();
 
     if (lower.includes("stock") || lower.includes("inventory")) {
@@ -61,21 +65,31 @@ async function handleUserMessage() {
         startProposalFlow();
     } 
     else {
-        // Fallback for unknown text (Simulate AI understanding)
-        simulateThinking(() => {
-            addMessage("I can help with Sales. Try 'Check stock' or 'Draft proposal'.", "bot");
-        });
+        await generateGeminiResponse(text);
     }
 }
 
 function resetLoop() {
     isLoopFinished = false;
-    isFirstMessage = false;
-    // Reset data to defaults
+    isFirstMessage = false; 
     clientData = { name: "John Doe", email: "john.doe@client.com", description: "Standard order details.", quantity: 10, discount: 0 };
+    // Optionally clear chat or just append below
 }
 
-// --- UI FLOWS ---
+async function generateGeminiResponse(userPrompt) {
+    const thoughtId = showThinkingSpinner();
+    try {
+        const result = await model.generateContent(`You are a Sales Assistant. Keep answers under 40 words. User: ${userPrompt}`);
+        const response = result.response.text();
+        removeThinkingSpinner(thoughtId);
+        addMessage(response, "bot");
+    } catch (error) {
+        removeThinkingSpinner(thoughtId);
+        addMessage("⚠️ AI Error: " + error.message, "bot");
+    }
+}
+
+// --- FLOWS ---
 function renderWelcomeMessage() {
     const div = document.createElement("div");
     div.className = "msg bot";
@@ -94,7 +108,7 @@ function renderWelcomeMessage() {
 
 function triggerInventoryFlow() {
     simulateThinking(() => {
-        // Random Stock: 1000 to 10000
+        // Random Stock 1000 - 10000
         const stockCount = Math.floor(Math.random() * (10000 - 1000 + 1)) + 1000;
         
         const html = `
@@ -147,15 +161,13 @@ function triggerDiscountAsk() {
 }
 
 function handleDiscountSelectionUI(id, discount) {
-    // 1. CAPTURE DATA INPUTS
+    // CAPTURE DATA
     const nameInput = document.getElementById(id + "-name");
     const qtyInput = document.getElementById(id + "-qty");
     const descInput = document.getElementById(id + "-desc");
     
-    // Update global state if input exists and isn't empty
     if (nameInput && nameInput.value.trim() !== "") {
         clientData.name = nameInput.value.trim();
-        // Generate pseudo-email
         clientData.email = clientData.name.toLowerCase().replace(/\s+/g, '.') + "@client.com";
     }
     if (qtyInput && qtyInput.value.trim() !== "") {
@@ -165,7 +177,7 @@ function handleDiscountSelectionUI(id, discount) {
         clientData.description = descInput.value.trim();
     }
 
-    // 2. UPDATE UI TO READ-ONLY CARD
+    // UPDATE UI TO READ-ONLY
     const container = document.getElementById(id);
     if (!container) return;
 
@@ -184,7 +196,6 @@ function handleDiscountSelectionUI(id, discount) {
 function triggerProposalReview(discount) {
     clientData.discount = discount;
     simulateThinking(() => {
-        // Logic: Approval needed if > 10%
         if (discount > 10) {
             const id = "app-" + Date.now();
             const html = `
@@ -209,9 +220,10 @@ function handleApprovalClick(id) {
     
     setTimeout(() => {
         showToast("Sarah Jones", "Approved! ✅");
-        document.getElementById(id + "-actions").innerHTML = `<div style="color:green; font-size:12px; margin-bottom:5px;"><strong>Approved</strong></div><button class="btn-primary" onclick="openWordModal()">Open in Word</button>`;
         
-        // === UPDATE SIDEBAR SARAH ===
+        document.getElementById(id + "-actions").innerHTML = `<div style="color:green; font-size:12px; margin-bottom:5px;"><strong>Approved</strong></div><button class="btn-primary" onclick="openWordModal()">Open in Word</button>`;
+
+        // === SIDEBAR UPDATE LOGIC ===
         const sarahItem = document.getElementById("sarahChatItem");
         const sarahPreview = document.getElementById("sarahPreview");
         const sarahTime = document.getElementById("sarahTime");
@@ -220,14 +232,20 @@ function handleApprovalClick(id) {
             sarahPreview.innerHTML = `<strong>✅ Approved:</strong> ${clientData.name}`;
             sarahPreview.style.color = "#107c10"; 
             sarahTime.innerText = "Now";
+            
+            // Visual Flash
             sarahItem.classList.add("chat-item-new");
-            // Move to top
+            
+            // Move to Top of Recent List
+            // "Recent" header is index 3. Next Sibling is index 4.
             const parent = sarahItem.parentNode;
-            // Insert after "Recent" label (assumed child index 3 or 4)
-            // Safer: Insert before the first item currently in Recent
-            // parent.children[3] is the "Recent" header.
-            parent.insertBefore(sarahItem, parent.children[4]); 
+            const recentHeader = parent.children[3]; 
+            
+            if (recentHeader && recentHeader.nextSibling) {
+                parent.insertBefore(sarahItem, recentHeader.nextSibling);
+            }
         }
+
     }, 2000);
 }
 
@@ -244,7 +262,7 @@ function renderReadyCard() {
     chat.scrollTop = chat.scrollHeight;
 }
 
-// --- MODAL LOGIC (Word) ---
+// --- MODAL LOGIC ---
 function openWordModal() {
     document.getElementById("appModal").classList.remove("hidden");
     document.getElementById("modalHeader").className = "modal-header word";
@@ -290,7 +308,6 @@ function openWordModal() {
         </div>`;
 
     document.getElementById("copilotSideStream").innerHTML = `<div style="background:#f0f0f0; padding:10px; border-radius:6px;"><strong>Copilot:</strong> Draft created for ${clientData.name}.</div>`;
-    
     renderSideButtons();
 }
 
@@ -301,23 +318,25 @@ function renderSideButtons() {
     `;
 }
 
-// Static Rewrite (Simulating AI)
-function rewriteDocumentWithAI() {
+async function rewriteDocumentWithAI() {
     const stream = document.getElementById("copilotSideStream");
     const suggestions = document.getElementById("sideSuggestions");
     
     stream.innerHTML += `<div style="background:#e8ebfa; padding:10px; border-radius:6px; margin-top:10px; align-self:flex-end;">Rewrite summary...</div>`;
     suggestions.innerHTML = `<button disabled style="color:#999;">Rewriting...</button>`;
 
-    setTimeout(() => {
-        const docSummary = document.getElementById("doc-summary");
-        if(docSummary) {
-            docSummary.innerHTML = "<strong>AI Enhanced:</strong> The X500 is a catalyst for growth, providing 40% efficiency gains and seamless integration.";
-            docSummary.style.backgroundColor = "#fff4ce";
-        }
+    try {
+        const result = await model.generateContent(`Rewrite this sales summary to be persuasive for client '${clientData.name}': '${clientData.description}'`);
+        const newText = result.response.text();
+        
+        document.getElementById("doc-summary").innerHTML = "<strong>AI Update:</strong> " + newText;
+        document.getElementById("doc-summary").style.backgroundColor = "#fff4ce";
         stream.innerHTML += `<div style="background:#f0f0f0; padding:10px; border-radius:6px; margin-top:10px;"><strong>Copilot:</strong> Done.</div>`;
-        renderSideButtons(); // Restore buttons
-    }, 1500);
+    } catch(e) {
+        stream.innerHTML += `<div style="color:red;">AI Error</div>`;
+    } finally {
+        renderSideButtons();
+    }
 }
 
 function switchToOutlook() {
@@ -366,12 +385,12 @@ function sendEmailAndFinish() {
     closeModal();
     showToast("System", "Email Sent! 🚀");
     setTimeout(() => addMessage("✅ Email sent. Loop complete. Type anything to restart.", "bot"), 1000);
-    isLoopFinished = true; // Sets the reset flag
+    isLoopFinished = true;
 }
 
-// --- HELPERS ---
 function closeModal() { document.getElementById("appModal").classList.add("hidden"); }
 
+// --- HELPERS ---
 function addMessage(text, sender) {
     const div = document.createElement("div");
     div.className = `msg ${sender}`;
@@ -380,7 +399,7 @@ function addMessage(text, sender) {
     chat.scrollTop = chat.scrollHeight;
 }
 
-function simulateThinking(callback) {
+function showThinkingSpinner() {
     const id = "thought-" + Date.now();
     const div = document.createElement("div");
     div.id = id;
@@ -388,14 +407,15 @@ function simulateThinking(callback) {
     div.innerHTML = `<div class="msg-avatar"><i class="fa-solid fa-sparkles"></i></div><div class="msg-content">Thinking...</div>`;
     chat.appendChild(div);
     chat.scrollTop = chat.scrollHeight;
-    
-    setTimeout(() => { 
-        const el = document.getElementById(id);
-        if(el) el.remove(); 
-        callback(); 
-    }, 1000);
+    return id;
 }
 
+function removeThinkingSpinner(id) { document.getElementById(id)?.remove(); }
+
+function simulateThinking(callback) {
+    const id = showThinkingSpinner();
+    setTimeout(() => { removeThinkingSpinner(id); callback(); }, 1000);
+}
 function showToast(title, msg) {
     const toast = document.getElementById("toast");
     document.getElementById("toastTitle").innerText = title;
