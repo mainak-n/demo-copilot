@@ -48,8 +48,7 @@ async function handleUserMessage() {
     addMessage(text, "user");
     input.value = ""; 
 
-    // 1. WELCOME LOOP RESET
-    // If the loop finished OR it's the very first message, show welcome and stop.
+    // 1. RESTART LOOP IF FINISHED
     if (isLoopFinished || isFirstMessage) {
         resetLoop();
         setTimeout(() => renderWelcomeMessage(), 600);
@@ -73,7 +72,6 @@ function resetLoop() {
     isLoopFinished = false;
     isFirstMessage = false; 
     clientData = { name: "John Doe", email: "john.doe@client.com", description: "Standard order details.", quantity: 10, discount: 0 };
-    // Optionally clear chat or just append below
 }
 
 async function generateGeminiResponse(userPrompt) {
@@ -129,7 +127,7 @@ function triggerInventoryFlow() {
 }
 
 function triggerDiscountAsk() {
-    addMessage("Sure. Please fill in the details below.", "bot");
+    addMessage("Sure. Please confirm the details below.", "bot");
     setTimeout(() => {
         const id = "disc-" + Date.now();
         const html = `
@@ -141,13 +139,13 @@ function triggerDiscountAsk() {
                 <label class="card-label">Client Name</label>
                 <input type="text" id="${id}-name" class="card-input" value="John Doe">
                 
-                <label class="card-label">Quantity (Units)</label>
+                <label class="card-label">Quantity</label>
                 <input type="number" id="${id}-qty" class="card-input" value="10">
 
                 <label class="card-label">Description (Optional)</label>
                 <textarea id="${id}-desc" class="card-textarea" placeholder="Add specific requirements..."></textarea>
 
-                <div class="card-title" style="margin-top:10px;">💲 Select Discount</div>
+                <div class="card-title" style="margin-top:10px;">💲 Select Pricing</div>
                 <div style="display:flex; flex-direction:column; gap:8px;">
                     <button style="text-align:left; padding:10px; border:1px solid #ddd; background:white;" onclick="handleDiscountSelection('${id}', 0)"><strong>Standard</strong> (0%)</button>
                     <button style="text-align:left; padding:10px; border:1px solid #ddd; background:white;" onclick="handleDiscountSelection('${id}', 10)"><strong>Partner</strong> (10%)</button>
@@ -161,7 +159,7 @@ function triggerDiscountAsk() {
 }
 
 function handleDiscountSelectionUI(id, discount) {
-    // CAPTURE DATA
+    // CAPTURE INPUTS
     const nameInput = document.getElementById(id + "-name");
     const qtyInput = document.getElementById(id + "-qty");
     const descInput = document.getElementById(id + "-desc");
@@ -177,7 +175,7 @@ function handleDiscountSelectionUI(id, discount) {
         clientData.description = descInput.value.trim();
     }
 
-    // UPDATE UI TO READ-ONLY
+    // UPDATE CARD TO READ-ONLY
     const container = document.getElementById(id);
     if (!container) return;
 
@@ -196,6 +194,7 @@ function handleDiscountSelectionUI(id, discount) {
 function triggerProposalReview(discount) {
     clientData.discount = discount;
     simulateThinking(() => {
+        // Logic: Approval needed > 10%
         if (discount > 10) {
             const id = "app-" + Date.now();
             const html = `
@@ -223,27 +222,20 @@ function handleApprovalClick(id) {
         
         document.getElementById(id + "-actions").innerHTML = `<div style="color:green; font-size:12px; margin-bottom:5px;"><strong>Approved</strong></div><button class="btn-primary" onclick="openWordModal()">Open in Word</button>`;
 
-        // === SIDEBAR UPDATE LOGIC ===
+        // UPDATE SIDEBAR SARAH
         const sarahItem = document.getElementById("sarahChatItem");
         const sarahPreview = document.getElementById("sarahPreview");
         const sarahTime = document.getElementById("sarahTime");
 
         if (sarahItem && sarahPreview) {
             sarahPreview.innerHTML = `<strong>✅ Approved:</strong> ${clientData.name}`;
-            sarahPreview.style.color = "#107c10"; 
+            sarahPreview.style.color = "#107c10";
             sarahTime.innerText = "Now";
-            
-            // Visual Flash
             sarahItem.classList.add("chat-item-new");
-            
-            // Move to Top of Recent List
-            // "Recent" header is index 3. Next Sibling is index 4.
+            // Move to top of recent
             const parent = sarahItem.parentNode;
-            const recentHeader = parent.children[3]; 
-            
-            if (recentHeader && recentHeader.nextSibling) {
-                parent.insertBefore(sarahItem, recentHeader.nextSibling);
-            }
+            // Insert after "Recent" (index 3)
+            parent.insertBefore(sarahItem, parent.children[4]);
         }
 
     }, 2000);
@@ -373,7 +365,6 @@ function switchToOutlook() {
     
     document.getElementById("copilotSideStream").innerHTML += `<div style="background:#f0f0f0; padding:10px; border-radius:6px; margin-top:10px;"><strong>Copilot:</strong> Email drafted for ${clientData.name}.</div>`;
     
-    // SEND BUTTON (Replaces Draft button)
     document.getElementById("sideSuggestions").innerHTML = `
         <button style="display:block !important; background:#0078d4; color:white; padding:15px; font-size:14px;" onclick="sendEmailAndFinish()">
             <i class="fa-solid fa-paper-plane"></i> Send Email
