@@ -2,12 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Contoso Sales Agent</title>
-    <link rel="stylesheet" href="teams.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contoso Sales Agent - Final Demo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="teams.css" />
 </head>
 <body>
+
     <div class="teams-container">
         <nav class="app-bar">
             <div class="app-icon"><i class="fa-regular fa-bell"></i><span class="label">Activity</span></div>
@@ -18,23 +20,29 @@
         </nav>
 
         <aside class="chat-list-pane">
-            <div class="pane-header"><h3>Chat</h3> <i class="fa-regular fa-pen-to-square"></i></div>
+            <div class="pane-header">
+                <h3>Chat</h3>
+                <i class="fa-regular fa-pen-to-square" style="color:#666; cursor:pointer;"></i>
+            </div>
             
             <div class="chat-category">Pinned</div>
             <div class="chat-item active">
                 <div class="avatar-circle agent-avatar"><i class="fa-solid fa-sparkles"></i></div>
-                <div class="chat-info"><span class="name">Sales Copilot</span><span class="preview">Powered by Gemini...</span></div>
+                <div class="chat-info">
+                    <span class="name">Sales Copilot</span>
+                    <span class="preview">Ready to assist...</span>
+                </div>
                 <span class="time">Now</span>
             </div>
 
             <div class="chat-category">Recent</div>
-            <div class="chat-item" id="sarahChatItem">
+            <div class="chat-item">
                 <div class="avatar-circle manager-avatar">SJ</div>
                 <div class="chat-info">
                     <span class="name">Sarah Jones</span>
-                    <span class="preview" id="sarahPreview">Q4 Budget Discussion...</span>
+                    <span class="preview">Approved: Q4 Budget</span>
                 </div>
-                <span class="time" id="sarahTime">10:45 AM</span>
+                <span class="time">10:45 AM</span>
             </div>
         </aside>
 
@@ -44,8 +52,13 @@
                     <div class="avatar-circle agent-avatar small"><i class="fa-solid fa-sparkles"></i></div>
                     <div class="header-text">
                         <span class="header-title">Sales Copilot</span>
-                        <span class="header-subtitle">Contoso Agent • <span style="color:#107c10">● Online</span></span>
+                        <span class="header-subtitle">Contoso Custom Agent • <span style="color:#107c10">● Online</span></span>
                     </div>
+                </div>
+                <div class="header-icons">
+                    <i class="fa-solid fa-phone"></i>
+                    <i class="fa-solid fa-video"></i>
+                    <i class="fa-solid fa-circle-info"></i>
                 </div>
             </header>
 
@@ -55,10 +68,14 @@
 
             <div class="input-area-wrapper">
                 <div class="input-container">
-                    <input id="msgInput" type="text" placeholder="Type a message..." autocomplete="off">
+                    <input id="msgInput" type="text" placeholder="Type a message (e.g., 'Hi')..." autocomplete="off">
                     <div class="input-footer">
-                        <div class="footer-icons"><i class="fa-solid fa-paperclip"></i></div>
-                        <button id="sendBtn"><i class="fa-solid fa-paper-plane"></i></button>
+                        <div class="footer-icons">
+                            <i class="fa-solid fa-font"></i>
+                            <i class="fa-solid fa-paperclip"></i>
+                            <i class="fa-regular fa-face-smile"></i>
+                        </div>
+                        <button id="sendBtn" onclick="handleUserMessage()"><i class="fa-solid fa-paper-plane"></i></button>
                     </div>
                 </div>
             </div>
@@ -66,26 +83,44 @@
     </div>
 
     <div id="toast" class="toast hidden">
-        <div class="toast-header"><div class="avatar-circle manager-avatar small">SJ</div><strong id="toastTitle">System</strong></div>
-        <div class="toast-body" id="toastBody">Action Complete</div>
+        <div class="toast-header">
+            <div class="avatar-circle manager-avatar small">SJ</div>
+            <strong id="toastTitle">Sarah Jones</strong>
+        </div>
+        <div class="toast-body" id="toastBody">Looks good. Approved! ✅</div>
     </div>
 
     <div id="appModal" class="modal-overlay hidden">
         <div class="modal-window">
             <div class="modal-header" id="modalHeader">
-                <div class="modal-title-group"><i id="modalIcon" class="fa-solid fa-file-word"></i><span id="appTitle">Document</span></div>
-                <button class="close-btn" id="closeModalBtn">×</button>
+                <div class="modal-title-group">
+                    <i id="modalIcon" class="fa-solid fa-file-word"></i>
+                    <span id="appTitle">Document1</span>
+                </div>
+                <button class="close-btn" onclick="closeModal()">×</button>
             </div>
+            
             <div class="modal-body">
-                <div class="app-ribbon"><span class="active">Home</span> <span>Insert</span> <span>Layout</span> <span>References</span></div>
+                <div class="app-ribbon">
+                    <span class="active">Home</span> <span>Insert</span> <span>Layout</span> <span>References</span> <span>Review</span>
+                </div>
+                
                 <div class="app-split-view">
                     <div class="app-canvas" id="appCanvas"></div>
+                    
                     <div class="copilot-sidepane">
-                        <div class="copilot-pane-header"><div class="copilot-logo"><i class="fa-solid fa-sparkles"></i> Copilot</div></div>
+                        <div class="copilot-pane-header">
+                            <div class="copilot-logo"><i class="fa-solid fa-sparkles"></i> Copilot</div>
+                        </div>
                         <div class="copilot-chat-stream" id="copilotSideStream"></div>
+                        
                         <div class="copilot-input-small">
                             <div id="sideSuggestions" class="suggestion-box"></div>
-                            <div class="input-row"><input type="text" placeholder="..." disabled><button><i class="fa-solid fa-paper-plane"></i></button></div>
+                            
+                            <div class="input-row">
+                                <input type="text" placeholder="Describe a change..." disabled>
+                                <button><i class="fa-solid fa-paper-plane"></i></button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -93,7 +128,7 @@
         </div>
     </div>
 
-    <script type="module" src="main.js"></script>
+    <script src="cards.js"></script>
+    <script src="chat.js"></script>
 </body>
 </html>
-
