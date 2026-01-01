@@ -19,15 +19,29 @@ function renderInventoryCard(item, count, location) {
     chat.scrollTop = chat.scrollHeight;
 }
 
-// --- DISCOUNT SELECTOR ---
+// --- DISCOUNT SELECTOR (MODIFIED WITH INPUTS) ---
 function renderDiscountSelector() {
     const chat = document.getElementById("chat");
     const id = "disc-" + Date.now();
+    
+    // Inputs for Name and Quantity added below
     const html = `
     <div class="msg bot" id="${id}">
         <div class="msg-avatar"><i class="fa-solid fa-sparkles"></i></div>
         <div class="adaptive-card" style="width:300px;">
             <div class="card-title">💲 Select Pricing Route</div>
+            
+            <div style="background:#f9f9f9; padding:10px; border-radius:4px; margin-bottom:10px; border:1px solid #eee;">
+                <div style="margin-bottom:8px;">
+                    <label style="font-size:11px; font-weight:bold; color:#555;">Customer Name</label>
+                    <input type="text" id="${id}-name" value="John Doe" style="width:100%; padding:6px; border:1px solid #ccc; border-radius:4px; box-sizing:border-box; font-size:13px;">
+                </div>
+                <div>
+                    <label style="font-size:11px; font-weight:bold; color:#555;">Quantity</label>
+                    <input type="number" id="${id}-qty" value="10" style="width:100%; padding:6px; border:1px solid #ccc; border-radius:4px; box-sizing:border-box; font-size:13px;">
+                </div>
+            </div>
+
             <div style="display:flex; flex-direction:column; gap:8px;">
                 <button style="text-align:left; padding:10px; border:1px solid #ddd; background:white; border-radius:4px; cursor:pointer;" onclick="handleDiscountSelection('${id}', 0)">
                     <strong>Standard Price</strong> <span style="color:#666; font-size:11px;">(0% Discount)</span>
@@ -46,6 +60,10 @@ function renderDiscountSelector() {
 }
 
 function handleDiscountSelection(elementId, discount) {
+    // We could capture the inputs here if needed:
+    // const name = document.getElementById(elementId + '-name').value;
+    // const qty = document.getElementById(elementId + '-qty').value;
+    
     const el = document.getElementById(elementId);
     if(el) el.remove();
     triggerProposalFlow(discount);
