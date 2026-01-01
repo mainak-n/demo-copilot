@@ -28,11 +28,11 @@ function handleUserMessage() {
     const lower = text.toLowerCase();
 
     // INTENT: Inventory
-    if (lower.includes("stock") || lower.includes("inventory") || lower.includes("x500")) {
+    if (lower.includes("stock") || lower.includes("inventory") || lower.includes("quantity")) {
         triggerInventoryFlow();
     } 
     // INTENT: Insights (NEW ADDITION)
-    else if (lower.includes("insight") || lower.includes("john doe")) {
+    else if (lower.includes("insight") || lower.includes("customer") || lower.includes("lead")) {
         triggerInsights();
     }
     // INTENT: Proposal (Number given -> Direct)
@@ -174,3 +174,4 @@ function addMessage(text, sender) {
     chat.appendChild(msgDiv);
     chat.scrollTop = chat.scrollHeight;
 }
+
