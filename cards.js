@@ -103,9 +103,6 @@ function handleApprovalClick(id, client, discount) {
                 <button class="btn-primary" onclick="openWordModal('${client}', ${discount})">Open in Word</button>
             `;
         }
-        if(typeof addMessage === "function") {
-            addMessage("Sarah approved it. I've prepared the file.", "bot");
-        }
     }, 2500);
 }
 
@@ -249,3 +246,4 @@ function showToast(title, body) {
     toast.classList.remove("hidden");
     setTimeout(() => toast.classList.add("hidden"), 3000);
 }
+
