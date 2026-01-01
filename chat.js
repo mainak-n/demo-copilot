@@ -31,6 +31,10 @@ function handleUserMessage() {
     if (lower.includes("stock") || lower.includes("inventory") || lower.includes("x500")) {
         triggerInventoryFlow();
     } 
+    // INTENT: Insights (NEW ADDITION)
+    else if (lower.includes("insight") || lower.includes("john doe")) {
+        triggerInsights();
+    }
     // INTENT: Proposal (Number given -> Direct)
     else if ((lower.includes("proposal") || lower.includes("draft")) && text.match(/(\d+)%/)) {
         const match = text.match(/(\d+)%/);
@@ -43,7 +47,7 @@ function handleUserMessage() {
     } 
     else {
         simulateAgentThinking(["Parsing intent..."], () => {
-            addMessage("I can help with Sales. Try: 'Check stock for X500' or 'Draft proposal'.", "bot");
+            addMessage("I can help with Sales. Try: 'Check stock', 'Get Insights', or 'Draft proposal'.", "bot");
         });
     }
 }
@@ -58,11 +62,41 @@ function renderWelcomeMessage() {
             <strong>Suggested actions:</strong>
             <div class="suggestion-chips">
                 <button onclick="useSuggestion('Check stock for X500 unit')">📦 Check stock for X500</button>
+                <button onclick="useSuggestion('Give me insights on John Doe')">🔍 Get Insights</button>
                 <button onclick="useSuggestion('Draft sales proposal')">📄 Draft Sales Proposal</button>
             </div>
         </div>`;
     chat.appendChild(msgDiv);
     chat.scrollTop = chat.scrollHeight;
+}
+
+// NEW FUNCTION FOR INSIGHTS
+function triggerInsights() {
+    simulateAgentThinking(
+        ["Analyzing CRM data...", "Checking Email history...", "Summarizing sentiment..."], 
+        () => {
+            const html = `
+            <div class="msg bot">
+                <div class="msg-avatar"><i class="fa-solid fa-sparkles"></i></div>
+                <div class="adaptive-card">
+                    <div class="card-title">💡 Client Insights: John Doe</div>
+                    <div style="font-size:13px; line-height:1.5;">
+                        <ul style="margin:0; padding-left:20px;">
+                            <li><strong>Deal Interest:</strong> <span style="color:green">Very High</span> 🔥</li>
+                            <li><strong>Last Interaction:</strong> Spoke yesterday regarding X500 specs.</li>
+                            <li><strong>Key Blocker:</strong> Concerns about budget approval cycles.</li>
+                        </ul>
+                    </div>
+                    <hr style="border:0; border-top:1px solid #eee; margin:10px 0;">
+                    <button class="btn-primary" onclick="triggerDiscountAsk()">
+                        Start Quote for Customer
+                    </button>
+                </div>
+            </div>`;
+            chat.insertAdjacentHTML('beforeend', html);
+            chat.scrollTop = chat.scrollHeight;
+        }
+    );
 }
 
 function triggerInventoryFlow() {
@@ -75,7 +109,7 @@ function triggerInventoryFlow() {
 }
 
 function triggerDiscountAsk() {
-    addMessage("Sure, I can draft a proposal for <strong>John Doe</strong>. Which pricing route should we take?", "bot");
+    addMessage("Sure, I can draft a proposal. Which pricing route should we take?", "bot");
     setTimeout(() => {
         renderDiscountSelector(); 
     }, 500);
