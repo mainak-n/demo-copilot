@@ -39,9 +39,9 @@ An intelligent agent built on the **Microsoft 365 Copilot Extensibility Platform
 ## 👥 User Personas
 | Persona | Role | Pain Point | Need |
 | :--- | :--- | :--- | :--- |
-| **Sarah Chen** | Account Executive | "I spend more time hunting for info than selling." | Speed, Template Discovery, Automation. |
+| **You** | Sales Executive | "I spend more time hunting for info than selling." | Speed, Template Discovery, Automation. |
+| **Sarah Chen** | Account Manager | Lacks visibility into pipeline and approval delays. | Consistency & Compliance. |
 | **David** | Solutions Engineer | Struggles with context handoff for technical sections. | Seamless collaboration on drafts. |
-| **Marcus** | Sales Manager | Lacks visibility into pipeline and approval delays. | Consistency & Compliance. |
 
 ---
 
