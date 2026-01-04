@@ -13,11 +13,11 @@ A high-fidelity **simulation** of a Microsoft 365 Copilot Agent designed to tran
 ## 🎯 The Problem: "App-Switching Hell"
 Creating a single sales proposal is currently a fragmented, manual process that bottlenecks revenue.
 * **Workflow:** Sales reps switch between **6+ applications** (CRM, SharePoint, Outlook, Teams, Word, Excel).
-* [cite_start]**Time Cost:** Average of **4-6 hours** per proposal[cite: 15].
+* **Time Cost:** Average of **4-6 hours** per proposal.
 * **Business Impact:**
     * annual revenue lost due to inefficiency.
-    * [cite_start]lower win rate for delayed proposals[cite: 4].
-    * [cite_start]High error rate due to manual copy-pasting[cite: 3].
+    * lower win rate for delayed proposals.
+    * High error rate due to manual copy-pasting.
 
 ---
 
@@ -32,7 +32,7 @@ An intelligent agent built on the **Microsoft 365 Copilot Extensibility Platform
 
 ### Why M365 Copilot? (The 10x Advantage)
 * **Standalone Apps:** Create yet another silo (2-3x improvement).
-* [cite_start]**M365 Copilot Agent:** Inherits context (Emails, Chats, Meetings) and security (Entra ID), eliminating context switching entirely (**10x improvement**)[cite: 7].
+* **M365 Copilot Agent:** Inherits context (Emails, Chats, Meetings) and security (Entra ID), eliminating context switching entirely (**10x improvement**).
 
 ---
 
